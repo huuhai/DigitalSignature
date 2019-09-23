@@ -914,6 +914,7 @@ public class GUI extends javax.swing.JFrame {
         jTextField_locationDigitalSignature.setText("");
         jTextArea_showPublicKeyFile.setText("");
         jTextArea_showDigitalSignatureFile.setText("");
+        jCbb_choiceAlgorithmForCheck.setSelectedItem("SHA1WithRSA");
     }//GEN-LAST:event_jBtn_resetTabCheckActionPerformed
 
     /**
