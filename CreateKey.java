@@ -5,6 +5,7 @@
  */
 package com.chungthucdientu.digital_signature;
 
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -34,9 +35,12 @@ public class CreateKey {
             setPrivateKey(keyPair.getPrivate());
             setPublicKey(keyPair.getPublic());
 
-            // in ra console cặp khóa ở dạng nhị phân (byte[] to String)
+            // in ra console cặp khóa ở dạng String
             System.out.println("privateKey: " + new String(privateKey.getEncoded()));
             System.out.println("publicKey: " + new String(publicKey.getEncoded()));
+
+            System.out.println("privateKey: " + Base64.encode(getPrivateKey().getEncoded()));
+            System.out.println("publicKey: " + Base64.encode(getPublicKey().getEncoded()));
         } catch (NoSuchAlgorithmException ex) {
             Logger.getLogger(CreateKey.class.getName()).log(Level.SEVERE, null, ex);
         }
