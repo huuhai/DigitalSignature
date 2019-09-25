@@ -5,6 +5,7 @@
  */
 package com.chungthucdientu.digital_signature;
 
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,11 +31,40 @@ public class GUI extends javax.swing.JFrame {
         this.setTitle("Demo Digital Signature");
         this.setResizable(false);
         this.setLocationRelativeTo(null);
+
+        jTextArea_showPrivateKey.setLineWrap(true);
+        jTextArea_showPrivateKey.setEditable(false);
+
+        jTextArea_showPublicKey.setLineWrap(true);
+        jTextArea_showPublicKey.setEditable(false);
+
+        jTextField_locationFileNeedSignature.setEditable(false);
+
+        jTextField_locationPrivateKey.setEditable(false);
+
+        jTextArea_showPrivateKeyFile.setLineWrap(true);
+        jTextArea_showPrivateKeyFile.setEditable(false);
+
+        jTextArea_showDigitalSignature.setLineWrap(true);
+        jTextArea_showDigitalSignature.setEditable(false);
+
+        jTextField_locationFileNeedCheck.setEditable(false);
+
+        jTextField_locationPublicKey.setEditable(false);
+
+        jTextArea_showPublicKeyFile.setEditable(false);
+        jTextArea_showPublicKeyFile.setLineWrap(true);
+
+        jTextField_locationDigitalSignature.setEditable(false);
+
+        jTextArea_showDigitalSignatureFile.setLineWrap(true);
+        jTextArea_showDigitalSignatureFile.setEditable(false);
     }
 
     CreateKey createKey = new CreateKey();
     JFileChooser jFileChooser = new JFileChooser();
     byte[] byteDigitalSignature;
+    ReadWriteFile readWriteFile = new ReadWriteFile();
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -539,34 +569,26 @@ public class GUI extends javax.swing.JFrame {
 
         createKey.createKeyPair(valueLengthKey);
 
-        // hiển thị cặp khóa ở dạng nhị phân lên giao diện (byte[] to String)
-        jTextArea_showPrivateKey.setText(new String(createKey.getPrivateKey().getEncoded()));
-        jTextArea_showPublicKey.setText(new String(createKey.getPublicKey().getEncoded()));
-
-        jTextArea_showPrivateKey.setLineWrap(true);
-        jTextArea_showPublicKey.setLineWrap(true);
-
-        jTextArea_showPrivateKey.setEditable(false);
-        jTextArea_showPublicKey.setEditable(false);
+        // hiển thị cặp khóa ở dạng String
+//        jTextArea_showPrivateKey.setText(new String(createKey.getPrivateKey().getEncoded()));
+//        jTextArea_showPublicKey.setText(new String(createKey.getPublicKey().getEncoded()));
+//
+        jTextArea_showPrivateKey.setText(Base64.encode(createKey.getPrivateKey().getEncoded()));
+        jTextArea_showPublicKey.setText(Base64.encode(createKey.getPublicKey().getEncoded()));
     }//GEN-LAST:event_jBtn_createKeyActionPerformed
 
     private void jBtn_savePrivateKeyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtn_savePrivateKeyActionPerformed
         // TODO add your handling code here:
-        String privateKey = jTextArea_showPrivateKey.getText();
-
-        if (privateKey.equals("")) {
+        if (jTextArea_showPrivateKey.getText().equals("")) {
             JOptionPane.showMessageDialog(null, "Không thể lưu. Chưa tạo khóa bí mật !!!", "Lỗi", JOptionPane.ERROR_MESSAGE);
         } else {
-//            outputWriteFile(getSaveLocation(), valuePrivateKey, "privateKey.txt");
             saveKeyToFile(createKey.getPrivateKey().getEncoded());
         }
     }//GEN-LAST:event_jBtn_savePrivateKeyActionPerformed
 
     private void jBtn_savePublicKeyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtn_savePublicKeyActionPerformed
         // TODO add your handling code here:
-        String publicKey = jTextArea_showPublicKey.getText();
-
-        if (publicKey.equals("")) {
+        if (jTextArea_showPublicKey.getText().equals("")) {
             JOptionPane.showMessageDialog(null, "Không thể lưu. Chưa tạo khóa công khai !!!", "Lỗi", JOptionPane.ERROR_MESSAGE);
         } else {
             saveKeyToFile(createKey.getPublicKey().getEncoded());
@@ -579,30 +601,12 @@ public class GUI extends javax.swing.JFrame {
 
         if (status == JFileChooser.APPROVE_OPTION) {
 
-            FileOutputStream fileOutputStream = null;
-
-            try {
-
-                File locationSaveFile = jFileChooser.getSelectedFile();
-                System.out.println("Duong dan luu file: " + locationSaveFile);
-                fileOutputStream = new FileOutputStream(locationSaveFile);
-                DataOutputStream dataOutputStream = new DataOutputStream(fileOutputStream);
-                dataOutputStream.write(valueKey);
-                dataOutputStream.flush();
-                dataOutputStream.close();
+            File locationSaveFile = jFileChooser.getSelectedFile();
+            System.out.println("Duong dan luu file: " + locationSaveFile);
+            if (readWriteFile.save(valueKey, locationSaveFile)) {
                 JOptionPane.showMessageDialog(null, "Lưu khóa thành công !!!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-
-            } catch (FileNotFoundException ex) {
-                Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex) {
-                Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
-            } finally {
-                try {
-                    fileOutputStream.flush();
-                    fileOutputStream.close();
-                } catch (IOException ex) {
-                    Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
-                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Lưu khóa không thành công !!!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
 
         } else if (status == JFileChooser.CANCEL_OPTION) {
@@ -619,7 +623,6 @@ public class GUI extends javax.swing.JFrame {
 
     private void jBtn_choiceFileNeedSignatureActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtn_choiceFileNeedSignatureActionPerformed
         // TODO add your handling code here:
-        jTextField_locationFileNeedSignature.setEditable(false);
         int status = jFileChooser.showOpenDialog(this);
 
         if (status == JFileChooser.APPROVE_OPTION) {
@@ -636,8 +639,6 @@ public class GUI extends javax.swing.JFrame {
 
     private void jBtn_choicePrivateKeyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtn_choicePrivateKeyActionPerformed
         // TODO add your handling code here:
-        jTextArea_showPrivateKeyFile.setEditable(false);
-        jTextArea_showPrivateKeyFile.setLineWrap(true);
         int status = jFileChooser.showOpenDialog(this);
 
         if (status == JFileChooser.APPROVE_OPTION) {
@@ -648,7 +649,7 @@ public class GUI extends javax.swing.JFrame {
                 fis = new FileInputStream(locationPrivateKeyFile);
                 byte[] bytePrivateKey = new byte[fis.available()];
                 fis.read(bytePrivateKey);
-                jTextArea_showPrivateKeyFile.setText(new String(bytePrivateKey));
+                jTextArea_showPrivateKeyFile.setText(Base64.encode(bytePrivateKey));
                 System.out.println("Duong dan file privatekey: " + locationPrivateKeyFile.getPath());
                 jTextField_locationPrivateKey.setText(locationPrivateKeyFile.getPath());
 
@@ -673,8 +674,6 @@ public class GUI extends javax.swing.JFrame {
 
     private void jBtn_createDigitalSignatureActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtn_createDigitalSignatureActionPerformed
         // TODO add your handling code here:
-        jTextArea_showDigitalSignature.setEditable(false);
-        jTextArea_showDigitalSignature.setLineWrap(true);
         FileInputStream fis = null;
 
         if (jTextField_locationPrivateKey.getText().equals("") || jTextField_locationFileNeedSignature.getText().equals("")) {
@@ -692,7 +691,7 @@ public class GUI extends javax.swing.JFrame {
 
                 DigitalSignature digitalSignature = new DigitalSignature();
                 byteDigitalSignature = digitalSignature.create(bytePrivateKey, byteFile, jCbb_choiceAlgorithmForSignature.getSelectedItem().toString());
-                jTextArea_showDigitalSignature.setText(new String(byteDigitalSignature));
+                jTextArea_showDigitalSignature.setText(Base64.encode(byteDigitalSignature));
 
             } catch (FileNotFoundException ex) {
                 Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
@@ -766,7 +765,6 @@ public class GUI extends javax.swing.JFrame {
 
     private void jBtn_choiceFileForCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtn_choiceFileForCheckActionPerformed
         // TODO add your handling code here:
-        jTextField_locationFileNeedCheck.setEditable(false);
         int status = jFileChooser.showOpenDialog(this);
 
         if (status == JFileChooser.APPROVE_OPTION) {
@@ -783,8 +781,6 @@ public class GUI extends javax.swing.JFrame {
 
     private void jBtn_choicePublicKeyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtn_choicePublicKeyActionPerformed
         // TODO add your handling code here:
-        jTextArea_showPublicKeyFile.setEditable(false);
-        jTextArea_showPublicKeyFile.setLineWrap(true);
         int status = jFileChooser.showOpenDialog(this);
 
         if (status == JFileChooser.APPROVE_OPTION) {
@@ -798,7 +794,7 @@ public class GUI extends javax.swing.JFrame {
 
                 System.out.println("Duong dan file publickey: " + locationPublicKeyFile.getPath());
                 jTextField_locationPublicKey.setText(locationPublicKeyFile.getPath());
-                jTextArea_showPublicKeyFile.setText(new String(bytePublicKey));
+                jTextArea_showPublicKeyFile.setText(Base64.encode(bytePublicKey));
 
             } catch (FileNotFoundException ex) {
                 Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
@@ -822,8 +818,6 @@ public class GUI extends javax.swing.JFrame {
     private void jBtn_choiceDigitalSignatureActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtn_choiceDigitalSignatureActionPerformed
         // TODO add your handling code here:
         int status = jFileChooser.showOpenDialog(this);
-        jTextArea_showDigitalSignatureFile.setEditable(false);
-        jTextArea_showDigitalSignatureFile.setLineWrap(true);
 
         if (status == JFileChooser.APPROVE_OPTION) {
 
@@ -831,12 +825,12 @@ public class GUI extends javax.swing.JFrame {
             try {
                 File locationDigitalSignature = jFileChooser.getSelectedFile();
                 fis = new FileInputStream(locationDigitalSignature);
-                byte[] byteDigitalSignature = new byte[fis.available()];
+                byteDigitalSignature = new byte[fis.available()];
                 fis.read(byteDigitalSignature);
 
                 System.out.println("Duong dan file digital signature: " + locationDigitalSignature.getPath());
                 jTextField_locationDigitalSignature.setText(locationDigitalSignature.getPath());
-                jTextArea_showDigitalSignatureFile.setText(new String(byteDigitalSignature));
+                jTextArea_showDigitalSignatureFile.setText(Base64.encode(byteDigitalSignature));
 
             } catch (FileNotFoundException ex) {
                 Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
