@@ -6,11 +6,9 @@
 package com.chungthucdientu.digital_signature;
 
 import com.sun.org.apache.xml.internal.security.utils.Base64;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -583,6 +581,7 @@ public class GUI extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Không thể lưu. Chưa tạo khóa bí mật !!!", "Lỗi", JOptionPane.ERROR_MESSAGE);
         } else {
             saveKeyToFile(createKey.getPrivateKey().getEncoded());
+            
         }
     }//GEN-LAST:event_jBtn_savePrivateKeyActionPerformed
 
@@ -723,30 +722,13 @@ public class GUI extends javax.swing.JFrame {
 
         if (status == JFileChooser.APPROVE_OPTION) {
 
-            FileOutputStream fileOutputStream = null;
+            File locationSaveFile = jFileChooser.getSelectedFile();
+            System.out.println("Duong dan luu file: " + locationSaveFile);
 
-            try {
-
-                File locationSaveFile = jFileChooser.getSelectedFile();
-                System.out.println("Duong dan luu file: " + locationSaveFile);
-                fileOutputStream = new FileOutputStream(locationSaveFile);
-                DataOutputStream dataOutputStream = new DataOutputStream(fileOutputStream);
-                dataOutputStream.write(valueDigitalSignature);
-                dataOutputStream.flush();
-                dataOutputStream.close();
+            if (readWriteFile.save(valueDigitalSignature, locationSaveFile)) {
                 JOptionPane.showMessageDialog(null, "Lưu chữ ký thành công !!!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-
-            } catch (FileNotFoundException ex) {
-                Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex) {
-                Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
-            } finally {
-                try {
-                    fileOutputStream.flush();
-                    fileOutputStream.close();
-                } catch (IOException ex) {
-                    Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
-                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Lưu chữ ký không thành công !!!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
 
         } else if (status == JFileChooser.CANCEL_OPTION) {

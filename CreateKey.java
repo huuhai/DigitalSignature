@@ -41,6 +41,7 @@ public class CreateKey {
 
             System.out.println("privateKey: " + Base64.encode(getPrivateKey().getEncoded()));
             System.out.println("publicKey: " + Base64.encode(getPublicKey().getEncoded()));
+
         } catch (NoSuchAlgorithmException ex) {
             Logger.getLogger(CreateKey.class.getName()).log(Level.SEVERE, null, ex);
         }
